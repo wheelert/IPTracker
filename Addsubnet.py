@@ -25,6 +25,9 @@ class Addsubnet(QtWidgets.QDialog, Ui_Dialog):
 		data = (_name,_ip,_mask)
 		id = Data.create_subnet(data)
 		
+		ipdata = (id,_ip,_mask)
+		ipid = Data.create_ips(ipdata)
+		
 		print("Add:"+_name+" "+_ip+" "+_mask+"to database")
 		
 	

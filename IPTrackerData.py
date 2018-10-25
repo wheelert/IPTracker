@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import ipaddress
 
 class IPTrackerData(object):
 	sqlite_file = 'data.sqlite' 
@@ -41,6 +42,19 @@ class IPTrackerData(object):
 		c = conn.cursor()
 
 		c.execute(sql_subnets_table)
+		
+		#create IP table 
+		sql_ips_table = """ CREATE TABLE IF NOT EXISTS ips (
+                                        id integer PRIMARY KEY,
+										subnetid integer,
+                                        IP text NOT NULL,
+                                        HostName text,
+										Note text
+                                    ); """
+		#conn = sqlite3.connect(self.sqlite_file)
+		c = conn.cursor()
+
+		c.execute(sql_ips_table)
 
 		
 	def create_subnet(self, data):
@@ -50,7 +64,48 @@ class IPTrackerData(object):
 		cur.execute(sql, data)
 		self.conn.commit()
 		return cur.lastrowid
-	
+		
+	def create_ips(self, data):
+		_ip = ipaddress.ip_network(data[1]+"/"+data[2])
+
+		#create network address entry
+		ipdata = (int(data[0]),str(_ip.network_address),"Network Address")
+		sql = ''' INSERT INTO ips(subnetid,IP,Note)
+              VALUES(?,?,?) '''
+		cur = self.conn.cursor()
+		cur.execute(sql, ipdata)
+		self.conn.commit()
+		
+		
+		for x in _ip.hosts():
+			ipdata = (int(data[0]),str(x))
+			sql = ''' INSERT INTO ips(subnetid,IP)
+              VALUES(?,?) '''
+			cur = self.conn.cursor()
+			cur.execute(sql, ipdata)
+			self.conn.commit()
+			
+		#create broadcast address entry
+		ipdata = (int(data[0]),str(_ip.broadcast_address),"Broadcast Address")
+		sql = ''' INSERT INTO ips(subnetid,IP,Note)
+              VALUES(?,?,?) '''
+		cur = self.conn.cursor()
+		cur.execute(sql, ipdata)
+		self.conn.commit()
+			
+	def get_ips(self, subnetid):
+		cur = self.conn.cursor()
+		cur.execute("SELECT IP,Hostname,Note FROM ips where subnetid='"+str(subnetid)+"'")
+ 
+		rows = cur.fetchall()
+		return rows
+	def get_subnet_id(self, name):
+		cur = self.conn.cursor()
+		cur.execute("SELECT id FROM subnets where name='"+name+"'")
+ 
+		rows = cur.fetchall()
+		return rows[0][0]
+		
 	def get_subnets(self):
 		cur = self.conn.cursor()
 		cur.execute("SELECT * FROM subnets")
