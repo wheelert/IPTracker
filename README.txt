@@ -1,4 +1,7 @@
 [requirements]
+pyQT5
+dnspython
+
 
 [Generate UI]
 pyuic5 -x addsubnet.ui -o addsubnet_ui.py
