@@ -1,4 +1,5 @@
 [requirements]
+Docutils
 pyQT5 
 python-nmap
 
