@@ -38,9 +38,9 @@ class TableModel(QAbstractTableModel):
         """
         Sort table by given column number.
         """
-        self.emit(SIGNAL("layoutAboutToBeChanged()"))
+        #self.emit(SIGNAL("layoutAboutToBeChanged()"))
         self.arraydata = sorted(self.arraydata, key=operator.itemgetter(Ncol))       
         if order == Qt.DescendingOrder:
             self.arraydata.reverse()
-        self.emit(SIGNAL("layoutChanged()"))
+        #self.emit(SIGNAL("layoutChanged()"))
 		

@@ -3,7 +3,9 @@ import sqlite3
 import ipaddress
 
 class IPTrackerData(object):
-	sqlite_file = 'data.sqlite' 
+	CURRENT_DIR = os.path.dirname(__file__)
+	sqlite_file = os.path.join(CURRENT_DIR, 'data.sqlite')
+	#sqlite_file = 'data.sqlite' 
 	table_subnets = 'subnets'
 	
 	def __init__(self):		
@@ -18,7 +20,7 @@ class IPTrackerData(object):
 		
 	def db_check(self):
 		try:
-			if os.path.isfile('data.sqlite'):
+			if os.path.isfile(self.sqlite_file):
 				conn = sqlite3.connect(self.sqlite_file)
 				return conn
 			else:
@@ -118,8 +120,15 @@ class IPTrackerData(object):
 		
 		
 	def update_ip_hostname(self,data):
-		print(data)
+		
 		sql = ''' UPDATE ips set Hostname=? where IP=? and subnetid=? '''
+		cur = self.conn.cursor()
+		cur.execute(sql, data)
+		self.conn.commit()
+		
+	def update_ip_status(self,data):
+
+		sql = ''' UPDATE ips set Status=? where IP=? and subnetid=? '''
 		cur = self.conn.cursor()
 		cur.execute(sql, data)
 		self.conn.commit()

@@ -1,6 +1,6 @@
 [requirements]
-pyQT5
-dnspython
+pyQT5 
+python-nmap
 
 
 [Generate UI]

@@ -8,12 +8,15 @@ from IPTrackerData import IPTrackerData
 from TableModel import *
 from threading import Thread 
 import time
+import os
+
 
 class MySignal(QtCore.QObject):
     ''' Why a whole new class? See here: 
     https://stackoverflow.com/a/25930966/2441026 '''
     sig_no_args = QtCore.pyqtSignal()
     sig_with_str = QtCore.pyqtSignal(str)
+    sig_sel_row = QtCore.pyqtSignal(int)
         
 
 class UI_helper(object):
@@ -24,6 +27,7 @@ class UI_helper(object):
 		self.selected_QModelIndex = ""
 		self.signal = MySignal()
 		self.signal.sig_no_args.connect(self.tbl_update)
+		self.signal.sig_sel_row.connect(self.tbl_highlight)
 	
 	def build_menubar(self, form, app):
 		
@@ -110,29 +114,87 @@ class UI_helper(object):
         # enable sorting
 		tv.setSortingEnabled(False)
 		
+
+	def fping(self, address):
+		import os
+		import sys
+		import subprocess
+		import time
+		
+		startupinfo = None
+		if os.name == "nt":
+			startupinfo=subprocess.STARTUPINFO()
+			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            
+		cmd = "ping -n 1 -w 3 "+address
+
+        
+		p = subprocess.Popen(cmd,
+							 stdout=subprocess.PIPE,
+							 stderr=subprocess.STDOUT,
+                             startupinfo=startupinfo)
+
+		# Wait until process terminates (without using p.wait())
+		while p.poll() is None:
+			# Process hasn't exited yet, let's wait some
+			time.sleep(0.5)
+
+		#windows	
+		_sub = "Received = 1"
+		#linux
+		#_sub = "1 received,"
+		
+		# Get return code from process
+		ret = p.stdout.read()
+		if _sub in str(ret):
+			return True
+		else:
+			return False
+			
 	def ipscan(self, subnetid):
 		import socket 
-		
+
 		print("subnet:"+str(subnetid))
 		Data = IPTrackerData()
 		_ips = Data.get_ips(subnetid)
+		_cnt = 0
 		for _ip in _ips:
+			#Highlight row
+			self.signal.sig_sel_row.emit(_cnt)
+			#ping ip for status
+			if self.fping(_ip[0]) == True:
+				_statdata = ("Alive",_ip[0],subnetid)
+				Data.update_ip_status(_statdata)
+			else:
+				_statdata = ("",_ip[0],subnetid)
+				Data.update_ip_status(_statdata)
 			
+			#check for dns name
 			try:
 				_dns = socket.gethostbyaddr(_ip[0])
 				_hostname = _dns[0]
 			except: 
 				_hostname = ""
 				
-			#print("IP: "+_ip[0] + " hostname: " + _hostname)
 			_data = (_hostname,_ip[0],subnetid)
 			Data.update_ip_hostname(_data)
+			
+			
+			_cnt +=1
+			
+			#update table
 			self.signal.sig_no_args.emit()
 			
 			
 	def tbl_update(self):
 		self.list_click(self.selected_QModelIndex)
+		
 		print("update tbl")
+		
+	def tbl_highlight(self, row):
+		tv = self._form.tableView
+		tv.selectRow(row)
+		print("fire highlight callback",str(row))
 		
 	def scanCall(self):
 		print("scan subnet")
