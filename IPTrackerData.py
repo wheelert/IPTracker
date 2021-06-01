@@ -4,9 +4,14 @@ import ipaddress
 
 class IPTrackerData(object):
 	CURRENT_DIR = os.path.dirname(__file__)
-	sqlite_file = os.path.join(CURRENT_DIR, 'data.sqlite')
+	USER_HOME_DIR = os.getenv('HOME')
+	USER_CONFIG_DIR = os.path.join(USER_HOME_DIR,'.config/IPTRACKER')
+	sqlite_file = os.path.join(USER_CONFIG_DIR, 'data.sqlite')
 	#sqlite_file = 'data.sqlite' 
 	table_subnets = 'subnets'
+	
+	if not os.path.exists(USER_CONFIG_DIR):
+		os.makedirs(USER_CONFIG_DIR)
 	
 	def __init__(self):		
 		
