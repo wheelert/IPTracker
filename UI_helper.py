@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QAction
+from PyQt5.QtWidgets import QApplication, QAction, QFileDialog, QMessageBox
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QAbstractTableModel
 from gui.addsubnet_ui import Ui_Dialog as form
@@ -9,6 +9,7 @@ from TableModel import *
 from threading import Thread 
 import time
 import os
+from pathlib import Path
 
 
 class MySignal(QtCore.QObject):
@@ -43,19 +44,26 @@ class UI_helper(object):
 		
 		# Create settings action
 		settingsAction = QAction(QIcon('exit.png'), '&Add Subnet', app)        
-		settingsAction.setShortcut('Ctrl+S')
+		settingsAction.setShortcut('Ctrl+A')
 		settingsAction.setStatusTip('Add Subnet')
 		settingsAction.triggered.connect(self.settingsCall)	
 		
+		# Create settings export action
+		settingsAction2 = QAction(QIcon(''), '&Export', app)        
+		settingsAction2.setShortcut('Ctrl+E')
+		settingsAction2.setStatusTip('Export')
+		settingsAction2.triggered.connect(self.exportCall)	
+		
 		# Create settings action
-		settingsAction2 = QAction(QIcon('exit.png'), '&Scan', app)        
-		settingsAction2.setShortcut('Ctrl+S')
-		settingsAction2.setStatusTip('Scan')
-		settingsAction2.triggered.connect(self.scanCall)	
+		settingsAction3 = QAction(QIcon('exit.png'), '&Scan', app)        
+		settingsAction3.setShortcut('Ctrl+S')
+		settingsAction3.setStatusTip('Scan')
+		settingsAction3.triggered.connect(self.scanCall)	
 	
 		sMenu = form.menubar.addMenu('&Settings')
 		sMenu.addAction(settingsAction)
 		sMenu.addAction(settingsAction2)
+		sMenu.addAction(settingsAction3)
 		
 		
 	def exitCall(self):
@@ -67,6 +75,33 @@ class UI_helper(object):
 		dialog.show()
 		self.poplist(self._form)
 		
+	def exportCall(self):
+		#check for selected subnet
+		if self._selectedsubnetid == "":
+			msgbox = QMessageBox(QMessageBox.Question, "Subnet", "You must select a subnet to export!")
+			msgbox.addButton(QMessageBox.Ok)
+
+			reply = msgbox.exec()
+			return
+        	
+		path = str(Path.home())
+
+		dialog = QtWidgets.QFileDialog()
+		dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptOpen)
+		dialog.setDirectory(path)
+		dialog.setFileMode(QtWidgets.QFileDialog.Directory)
+		dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly, True)
+		dialog.setViewMode(QtWidgets.QFileDialog.Detail)
+
+		if dialog.exec_() == QtWidgets.QFileDialog.Accepted:
+			_dir = dialog.selectedFiles()[0]
+			_filename = self.selected_QModelIndex.data() 
+			
+			Data = IPTrackerData()
+			_file = Data.export_CSV(self._selectedsubnetid, _dir, _filename)
+			_finishbox = QMessageBox(QMessageBox.Question, "Data Exported", "Subnet Written to file ("+_file+")")
+			_finishbox.exec()
+
 	def poplist(self,form):
 
 		model = QtGui.QStandardItemModel()

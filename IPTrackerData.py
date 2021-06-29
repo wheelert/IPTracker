@@ -1,6 +1,8 @@
 import os
 import sqlite3
 import ipaddress
+import csv
+import datetime
 
 class IPTrackerData(object):
 	CURRENT_DIR = os.path.dirname(__file__)
@@ -137,6 +139,23 @@ class IPTrackerData(object):
 		cur = self.conn.cursor()
 		cur.execute(sql, data)
 		self.conn.commit()
+		
+	def export_CSV(self, _subnetid, _dir, _filename):
+		
+		x = datetime.datetime.now()
+		_spacer = x.strftime("%f")
+		_csvfile = _dir +'/'+_filename+'_'+_spacer+'.csv'
+		_ips = self.get_ips(_subnetid)
+		
+		with open(_csvfile, 'w', newline='', encoding='UTF8') as csvfile:
+			fieldnames = ["IP", "Status","Hostname","Note"]
+			writer = csv.writer(csvfile, quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+			writer.writerow(fieldnames)
+			writer.writerows(_ips)
+
+		return _csvfile
+
 	
 	def db_close(self):
 		self.conn.close()
