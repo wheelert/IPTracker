@@ -177,7 +177,7 @@ class UI_helper(object):
 		#windows	
 		_sub = "Received = 1"
 		#linux
-		#_sub = "1 received,"
+		_sub = "1 received,"
 		
 		# Get return code from process
 		ret = p.stdout.read()
@@ -199,6 +199,7 @@ class UI_helper(object):
 			#ping ip for status
 			if self.fping(_ip[0]) == True:
 				_statdata = ("Alive",_ip[0],subnetid)
+				print(_statdata)
 				Data.update_ip_status(_statdata)
 			else:
 				_statdata = ("",_ip[0],subnetid)
