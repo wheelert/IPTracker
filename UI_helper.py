@@ -175,9 +175,11 @@ class UI_helper(object):
 			time.sleep(0.5)
 
 		#windows	
-		_sub = "Received = 1"
+		if os.name == 'nt':
+			_sub = "Received = 1"
+		else:	
 		#linux
-		_sub = "1 received,"
+			_sub = "1 received,"
 		
 		# Get return code from process
 		ret = p.stdout.read()
