@@ -3,10 +3,11 @@ import sqlite3
 import ipaddress
 import csv
 import datetime
+from pathlib import Path
 
 class IPTrackerData(object):
 	CURRENT_DIR = os.path.dirname(__file__)
-	USER_HOME_DIR = os.getenv('HOME')
+	USER_HOME_DIR = Path.home()
 	USER_CONFIG_DIR = os.path.join(USER_HOME_DIR,'.config/IPTRACKER')
 	sqlite_file = os.path.join(USER_CONFIG_DIR, 'data.sqlite')
 	#sqlite_file = 'data.sqlite' 
