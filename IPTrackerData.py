@@ -109,7 +109,9 @@ class IPTrackerData(object):
 		cur.execute("SELECT IP,Status,Hostname,Note FROM ips where subnetid='"+str(subnetid)+"'")
  
 		rows = cur.fetchall()
+
 		return rows
+
 	def get_subnet_id(self, name):
 		cur = self.conn.cursor()
 		cur.execute("SELECT id FROM subnets where name='"+name+"'")
@@ -137,6 +139,13 @@ class IPTrackerData(object):
 	def update_ip_status(self,data):
 
 		sql = ''' UPDATE ips set Status=? where IP=? and subnetid=? '''
+		cur = self.conn.cursor()
+		cur.execute(sql, data)
+		self.conn.commit()
+
+	def update_ip_note(self,data):
+
+		sql = ''' UPDATE ips set Note=? where IP=? and subnetid=? '''
 		cur = self.conn.cursor()
 		cur.execute(sql, data)
 		self.conn.commit()
