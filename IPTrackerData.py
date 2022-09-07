@@ -77,7 +77,7 @@ class IPTrackerData(object):
 		return cur.lastrowid
 		
 	def create_ips(self, data):
-		_ip = ipaddress.ip_network(data[1]+"/"+data[2])
+		_ip = ipaddress.ip_network(data[1]+"/"+data[2], False)
 
 		#create network address entry
 		ipdata = (int(data[0]),str(_ip.network_address),"Network Address")
