@@ -131,7 +131,7 @@ class IPTrackerData(object):
 		
 	def get_subnets(self):
 		cur = self.conn.cursor()
-		cur.execute("SELECT * FROM subnets")
+		cur.execute("SELECT * FROM subnets order by name")
  
 		rows = cur.fetchall()
 		
