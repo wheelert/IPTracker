@@ -50,6 +50,12 @@ class UI_helper(object):
         settingsAction.setStatusTip('Add Subnet')
         settingsAction.triggered.connect(self.settingsCall)
 
+        # Remove settings action
+        removeAction = QAction(QIcon('remove.png'), '&Remove Subnet', app)
+        removeAction.setShortcut('Ctrl+R')
+        removeAction.setStatusTip('Remove Subnet')
+        removeAction.triggered.connect(self.removeCall)
+
         # Create settings export action
         settingsAction2 = QAction(QIcon(''), '&Export', app)
         settingsAction2.setShortcut('Ctrl+E')
@@ -62,8 +68,9 @@ class UI_helper(object):
         settingsAction3.setStatusTip('Scan')
         settingsAction3.triggered.connect(self.scanCall)
 
-        sMenu = form.menubar.addMenu('&Settings')
+        sMenu = form.menubar.addMenu('&Actions')
         sMenu.addAction(settingsAction)
+        sMenu.addAction(removeAction)
         sMenu.addAction(settingsAction2)
         sMenu.addAction(settingsAction3)
 
@@ -75,6 +82,33 @@ class UI_helper(object):
         dialog.exec_()
         dialog.show()
         self.poplist(self._form)
+
+    def removeCall(self):
+        # check for selected subnet
+        if self._selectedsubnetid == "":
+            msgbox = QMessageBox(QMessageBox.Question, "Subnet", "You must select a subnet to remove!")
+            msgbox.addButton(QMessageBox.Ok)
+
+            reply = msgbox.exec()
+            return
+
+        _name = self.selected_QModelIndex.data()
+        confBox = QMessageBox()
+        confBox.setIcon(QMessageBox.Question)
+        confBox.setText(f"Are you sure you want to remove {_name}")
+        confBox.setWindowTitle(f"Remove Subnet {_name}")
+        confBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        #confBox.buttonClicked.connect(msgButtonClick)
+
+        returnValue = confBox.exec()
+        if returnValue == QMessageBox.Ok:
+            print('OK clicked')
+            Data = IPTrackerData()
+            _subnet_id = Data.get_subnet_id(_name)
+            Data.remove_subnet(_subnet_id)
+
+            self.poplist(self._form)
+
 
     def exportCall(self):
         # check for selected subnet
