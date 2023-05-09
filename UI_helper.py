@@ -2,7 +2,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QAction, QFileDialog, QMessageBox, QLineEdit, QDialog
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QAbstractTableModel
-
 from NoteDialog import NoteDialog
 from gui.addsubnet_ui import Ui_Dialog as form
 from Addsubnet import Addsubnet
@@ -12,6 +11,7 @@ from threading import Thread
 import time
 import os
 from pathlib import Path
+
 
 
 class MySignal(QtCore.QObject):

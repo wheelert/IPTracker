@@ -76,6 +76,7 @@ class IPTrackerData(object):
 		self.conn.commit()
 		return cur.lastrowid
 
+#remove subnet
 	def remove_subnet(self, subnet_id):
 		sql = 'DELETE FROM ips WHERE subnetid=?'
 		sql2 = 'DELETE FROM subnets where id=?'
@@ -84,8 +85,6 @@ class IPTrackerData(object):
 		cur.execute(sql, (subnet_id,))
 		cur.execute(sql2, (subnet_id,))
 		self.conn.commit()
-
-
 
 	def create_ips(self, data):
 		_ip = ipaddress.ip_network(data[1]+"/"+data[2], False)
